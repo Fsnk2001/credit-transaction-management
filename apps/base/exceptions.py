@@ -6,6 +6,11 @@ class CustomException(Exception):
         self.details = details or {}
 
 
+class ValidationError(CustomException):
+    def __init__(self, message, details=None):
+        super().__init__(message, status_code=400, details=details)
+
+
 class NotFoundError(CustomException):
     def __init__(self, message="The requested resource was not found. Please check the resource ID and try again."):
         super().__init__(message, status_code=404)
