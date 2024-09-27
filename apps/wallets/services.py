@@ -38,13 +38,17 @@ class IncreaseCreditRequestService(BaseService):
 
     @classmethod
     def update_request_if_not_approved(cls, id: int, data: dict):
-        credit_request = cls.get_by_id(id)
+        credit_request = cls.select_for_update_by_id(id)
         if credit_request.is_verfied:
             raise ValidationError("You cannot update because it is already approved.")
         return cls.update(id, data)
 
     @classmethod
     def approve(cls, id: int, approved_by_id: int, data: dict):
+        credit_request = cls.select_for_update_by_id(id)
+        if credit_request.is_verfied:
+            raise ValidationError("This request has already been approved.")
+
         data.update({
             'approved_by': approved_by_id,
             'approved_at': timezone.now()
