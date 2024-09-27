@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from ..base.views import BaseViewSet
 from ..base.responses import Response
-from apps.users.permissions import IsAdminPermission
+from ..base.permissions import IsAdminPermission
 from .serializers import UserSerializer
 from .services import UserService
 
@@ -31,7 +31,7 @@ class UserViewSet(BaseViewSet):
         data = self._service.get_by_id(user_id)
         return Response(
             data={
-                'user': self.get_serializer(data).data
+                "user": self.get_serializer(data).data
             }, message="The user.", meta={}
         )
 
@@ -43,7 +43,7 @@ class UserViewSet(BaseViewSet):
         data = self._service.get_by_id(id)
         return Response(
             data={
-                'user': self.get_serializer(data).data
+                "user": self.get_serializer(data).data
             }, message="The user.", meta={}
         )
 
@@ -51,7 +51,7 @@ class UserViewSet(BaseViewSet):
         user = self._service.create(request.data)
         return Response(
             data={
-                'user': self.get_serializer(user).data
+                "user": self.get_serializer(user).data
             }, message="User created successfully.", status=status.HTTP_201_CREATED
         )
 
@@ -60,6 +60,6 @@ class UserViewSet(BaseViewSet):
         updated_user = self._service.update(id, request.data)
         return Response(
             data={
-                'user': self.get_serializer(updated_user).data
+                "user": self.get_serializer(updated_user).data
             }, message="User updated successfully.", status=status.HTTP_200_OK
         )
