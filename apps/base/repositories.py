@@ -5,6 +5,7 @@ from django.db.models import QuerySet
 
 from .models import BaseModel
 from .serializers import BaseModelSerializer
+from .exceptions import NotFoundError
 
 
 class BaseRepository(ABC):
@@ -33,7 +34,17 @@ class BaseRepository(ABC):
 
     @classmethod
     def get_by_id(cls, id: int | str):
-        return cls._model.objects.filter(pk=id).first()
+        instance = cls._model.objects.filter(pk=id).first()
+        if instance is None:
+            raise NotFoundError()
+        return instance
+
+    @classmethod
+    def select_for_update_by_id(cls, id: int | str):
+        instance = cls._model.objects.select_for_update().get(pk=id)
+        if instance is None:
+            raise NotFoundError()
+        return instance
 
     @classmethod
     def create(cls, data: dict):

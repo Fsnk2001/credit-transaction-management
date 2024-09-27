@@ -23,10 +23,11 @@ class BaseService(ABC):
 
     @classmethod
     def get_by_id(cls, id: int | str):
-        instance = cls._repository.get_by_id(id)
-        if instance is None:
-            raise NotFoundError()
-        return instance
+        return cls._repository.get_by_id(id)
+
+    @classmethod
+    def select_for_update_by_id(cls, id: int | str):
+        return cls._repository.select_for_update_by_id(id)
 
     @classmethod
     def create(cls, data: dict):
