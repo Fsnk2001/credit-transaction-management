@@ -6,3 +6,10 @@ class IsAdminPermission(BasePermission):
 
     def has_permission(self, request, view):
         return bool(request.user and request.user.is_admin)
+
+
+class IsSellerPermission(BasePermission):
+    message = "Permission denied, you are not seller."
+
+    def has_permission(self, request, view):
+        return bool(request.user and request.user.is_seller)
