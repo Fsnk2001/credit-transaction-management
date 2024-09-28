@@ -19,6 +19,7 @@ class WalletTransaction(BaseModel):
     wallet = models.ForeignKey(Wallet, on_delete=models.PROTECT)
     transaction_type = models.CharField(max_length=50, choices=TransactionType.choices)
     amount = models.PositiveBigIntegerField()
+    balance_after_transaction = models.PositiveBigIntegerField()
 
 
 class IncreaseCreditRequest(BaseModel):
