@@ -3,13 +3,20 @@ from django.dispatch import receiver
 from django.db import transaction
 
 from ..users.models import User
-from .models import Transaction, IncreaseCreditRequest
+from .models import TransactionType, Transaction, IncreaseCreditRequest
 
 
 @receiver(post_save, sender=IncreaseCreditRequest)
-def update_wallet_balance(sender, instance, created, **kwargs):
+def update_user_balance_after_increase_credit_request(sender, instance, created, **kwargs):
     if instance.is_approved:
         with transaction.atomic():
             user = User.objects.get(pk=instance.user)
             user.balance += instance.amount
             user.save()
+
+            Transaction.objects.create(
+                user=instance.user,
+                transaction_type=TransactionType.INCREASE,
+                amount=instance.amount,
+                balance_after_transaction=user.balance,
+            )
