@@ -1,13 +1,7 @@
 from django.db import models
 
 from ..base.models import BaseModel
-
 from ..users.models import User
-
-
-class Wallet(BaseModel):
-    user = models.OneToOneField(User, on_delete=models.PROTECT)
-    balance = models.PositiveBigIntegerField(default=0)
 
 
 class TransactionType(models.TextChoices):
@@ -15,8 +9,8 @@ class TransactionType(models.TextChoices):
     DECREASE = 'decrease', 'Decrease'
 
 
-class WalletTransaction(BaseModel):
-    wallet = models.ForeignKey(Wallet, on_delete=models.PROTECT)
+class Transaction(BaseModel):
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
     transaction_type = models.CharField(max_length=50, choices=TransactionType.choices)
     amount = models.PositiveBigIntegerField()
     balance_after_transaction = models.PositiveBigIntegerField()

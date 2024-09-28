@@ -2,18 +2,12 @@ from rest_framework import serializers
 
 from ..base.serializers import BaseModelSerializer
 from ..users.models import User, UserRoles
-from .models import Wallet, TransactionType, WalletTransaction, IncreaseCreditRequest
+from .models import TransactionType, Transaction, IncreaseCreditRequest
 
 
-class WalletSerializer(BaseModelSerializer):
+class TransactionSerializer(BaseModelSerializer):
     class Meta:
-        model = Wallet
-        fields = '__all__'
-
-
-class WalletTransactionSerializer(BaseModelSerializer):
-    class Meta:
-        model = WalletTransaction
+        model = Transaction
         fields = '__all__'
 
 
