@@ -3,10 +3,10 @@ from django.dispatch import receiver
 from django.db import transaction
 
 from ..users.models import User
-from .models import TransactionType, Transaction, DepositCreditRequest
+from .models import TransactionType, Transaction, DepositCredit
 
 
-@receiver(post_save, sender=DepositCreditRequest)
+@receiver(post_save, sender=DepositCredit)
 def update_user_balance_after_deposit_request(sender, instance, created, **kwargs):
     if instance.is_approved:
         with transaction.atomic():

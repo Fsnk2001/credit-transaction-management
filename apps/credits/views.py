@@ -7,11 +7,11 @@ from ..base.responses import Response
 from ..base.permissions import IsAdminPermission, IsSellerPermission
 from .serializers import (
     TransactionSerializer,
-    DepositCreditRequestSerializer,
-    CreateOrUpdateDepositCreditRequestSerializer,
-    ApproveDepositCreditRequestSerializer,
+    DepositCreditSerializer,
+    CreateOrUpdateDepositCreditSerializer,
+    ApproveDepositCreditSerializer,
 )
-from .services import TransactionService, DepositCreditRequestService
+from .services import TransactionService, DepositCreditService
 
 
 class TransactionViewSet(BaseViewSet):
@@ -54,8 +54,8 @@ class TransactionViewSet(BaseViewSet):
 
 
 class DepositCreditRequestViewSet(BaseViewSet):
-    _service = DepositCreditRequestService
-    serializer_class = DepositCreditRequestSerializer
+    _service = DepositCreditService
+    serializer_class = DepositCreditSerializer
     permission_classes = [IsAuthenticated]
 
     def list(self, request, *args, **kwargs):
@@ -65,8 +65,8 @@ class DepositCreditRequestViewSet(BaseViewSet):
         data = self._service.get_all()
         return Response(
             data={
-                "deposit_requests": self.get_serializer(data, many=True).data
-            }, message="List of deposit requests.", meta={}
+                "deposits": self.get_serializer(data, many=True).data
+            }, message="List of deposits.", meta={}
         )
 
     @action(detail=False, methods=['get'], url_path='me')
@@ -75,11 +75,11 @@ class DepositCreditRequestViewSet(BaseViewSet):
         self.check_permissions(request)
 
         user_id = request.user.id
-        data = self._service.get_my_deposit_requests(user_id)
+        data = self._service.get_my_deposits(user_id)
         return Response(
             data={
-                "deposit_requests": self.get_serializer(data).data
-            }, message="Your deposit requests.", meta={}
+                "deposits": self.get_serializer(data).data
+            }, message="Your deposits.", meta={}
         )
 
     def retrieve(self, request, *args, **kwargs):
@@ -90,33 +90,33 @@ class DepositCreditRequestViewSet(BaseViewSet):
         data = self._service.get_by_id(id)
         return Response(
             data={
-                "deposit_request": self.get_serializer(data).data
-            }, message="The deposit request.", meta={}
+                "deposit": self.get_serializer(data).data
+            }, message="The deposit.", meta={}
         )
 
     def create(self, request, *args, **kwargs):
         user_id = request.user.id
-        serializer = CreateOrUpdateDepositCreditRequestSerializer(data=request.data)
+        serializer = CreateOrUpdateDepositCreditSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        deposit_request = self._service.create_request(user_id, serializer.validated_data)
+        deposit = self._service.create_deposit(user_id, serializer.validated_data)
         return Response(
             data={
-                "deposit_request": self.get_serializer(deposit_request).data
-            }, message="Deposit request created successfully.", status=status.HTTP_201_CREATED
+                "deposit": self.get_serializer(deposit).data
+            }, message="Deposit created successfully.", status=status.HTTP_201_CREATED
         )
 
     def update(self, request, *args, **kwargs):
         id = kwargs.get('pk')
         user_id = request.user.id
-        self._service.is_request_yours(id, user_id)
+        self._service.is_deposit_yours(id, user_id)
 
-        serializer = CreateOrUpdateDepositCreditRequestSerializer(data=request.data)
+        serializer = CreateOrUpdateDepositCreditSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        updated_deposit_request = self._service.update_request_if_not_approved(id, serializer.validated_data)
+        updated_deposit = self._service.update_deposit_if_not_approved(id, serializer.validated_data)
         return Response(
             data={
-                "deposit_request": self.get_serializer(updated_deposit_request).data
-            }, message="Deposit request updated successfully.", status=status.HTTP_200_OK
+                "deposit": self.get_serializer(updated_deposit).data
+            }, message="Deposit updated successfully.", status=status.HTTP_200_OK
         )
 
     @action(detail=True, methods=['post'])
@@ -126,11 +126,11 @@ class DepositCreditRequestViewSet(BaseViewSet):
 
         id = kwargs.get('pk')
         user_id = request.user.id
-        serializer = ApproveDepositCreditRequestSerializer(data=request.data)
+        serializer = ApproveDepositCreditSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        updated_deposit_request = self._service.approve(id, user_id, serializer.validated_data)
+        updated_deposit = self._service.approve_deposit(id, user_id, serializer.validated_data)
         return Response(
             data={
-                "deposit_request": self.get_serializer(updated_deposit_request).data
-            }, message="Deposit request approved successfully.", status=status.HTTP_200_OK
+                "deposit": self.get_serializer(updated_deposit).data
+            }, message="Deposit approved successfully.", status=status.HTTP_200_OK
         )

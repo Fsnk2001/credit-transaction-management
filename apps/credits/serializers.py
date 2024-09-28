@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
 from ..base.serializers import BaseModelSerializer
-from ..users.models import User, UserRoles
-from .models import TransactionType, Transaction, DepositCreditRequest
+from ..users.models import User, UserRoles, PhoneNumber
+from .models import TransactionType, Transaction, DepositCredit
 
 
 class TransactionSerializer(BaseModelSerializer):
@@ -11,9 +11,9 @@ class TransactionSerializer(BaseModelSerializer):
         fields = '__all__'
 
 
-class DepositCreditRequestSerializer(BaseModelSerializer):
+class DepositCreditSerializer(BaseModelSerializer):
     class Meta:
-        model = DepositCreditRequest
+        model = DepositCredit
         fields = '__all__'
 
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
@@ -38,9 +38,9 @@ class DepositCreditRequestSerializer(BaseModelSerializer):
         return value
 
 
-class CreateOrUpdateDepositCreditRequestSerializer(serializers.Serializer):
+class CreateOrUpdateDepositCreditSerializer(serializers.Serializer):
     amount = serializers.IntegerField(min_value=1)
 
 
-class ApproveDepositCreditRequestSerializer(serializers.Serializer):
+class ApproveDepositCreditSerializer(serializers.Serializer):
     is_approved = serializers.BooleanField(default=False)

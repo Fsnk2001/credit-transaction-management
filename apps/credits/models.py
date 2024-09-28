@@ -1,7 +1,7 @@
 from django.db import models
 
 from ..base.models import BaseModel
-from ..users.models import User
+from ..users.models import User, PhoneNumber
 
 
 class TransactionType(models.TextChoices):
@@ -16,7 +16,7 @@ class Transaction(BaseModel):
     balance_after_transaction = models.PositiveBigIntegerField()
 
 
-class DepositCreditRequest(BaseModel):
+class DepositCredit(BaseModel):
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     amount = models.PositiveBigIntegerField()
     is_approved = models.BooleanField(default=False)
