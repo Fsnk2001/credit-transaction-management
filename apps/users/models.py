@@ -13,6 +13,7 @@ class UserRoles(models.TextChoices):
 class User(BaseModel, AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     username = models.CharField(max_length=255, unique=True)
+    balance = models.PositiveBigIntegerField(default=0)
 
     objects = UserManager()
 
