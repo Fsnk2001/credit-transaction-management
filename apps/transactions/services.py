@@ -1,23 +1,21 @@
 from django.utils import timezone
 
-from ..base.models import BaseModel
 from ..base.services import BaseService
 from ..base.exceptions import ValidationError, PermissionDeniedError
-from .repositories import WalletRepository, WalletTransactionRepository, IncreaseCreditRequestRepository
+from .repositories import TransactionRepository, IncreaseCreditRequestRepository
 
 
-class WalletService(BaseService):
-    _repository = WalletRepository
+class TransactionService(BaseService):
+    _repository = TransactionRepository
 
-
-class WalletTransactionService(BaseService):
-    _repository = WalletTransactionRepository
+    @classmethod
+    def get_my_transactions(cls, user_id: int):
+        return list(cls._repository.get_transactions_based_on_user_id(user_id))
 
 
 class IncreaseCreditRequestService(BaseService):
     _repository = IncreaseCreditRequestRepository
-    wallet_service = WalletService
-    wallet_transaction_service = WalletTransactionService
+    transaction_service = TransactionService
 
     @classmethod
     def create_request(cls, user_id: id, data: dict):
