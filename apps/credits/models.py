@@ -5,8 +5,8 @@ from ..users.models import User
 
 
 class TransactionType(models.TextChoices):
-    INCREASE = 'increase', 'Increase'
-    DECREASE = 'decrease', 'Decrease'
+    DEPOSIT = 'deposit', 'Deposit'
+    TRANSFER = 'transfer', 'Transfer'
 
 
 class Transaction(BaseModel):
@@ -16,9 +16,9 @@ class Transaction(BaseModel):
     balance_after_transaction = models.PositiveBigIntegerField()
 
 
-class IncreaseCreditRequest(BaseModel):
+class DepositCreditRequest(BaseModel):
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     amount = models.PositiveBigIntegerField()
     is_approved = models.BooleanField(default=False)
-    approved_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='request_approvals')
+    approved_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='deposit_approvals')
     approved_at = models.DateTimeField(null=True, blank=True)

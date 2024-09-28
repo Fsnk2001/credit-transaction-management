@@ -1,8 +1,8 @@
 from django.db.models import QuerySet
 
 from ..base.repositories import BaseRepository
-from .models import Transaction, IncreaseCreditRequest
-from .serializers import TransactionSerializer, IncreaseCreditRequestSerializer
+from .models import Transaction, DepositCreditRequest
+from .serializers import TransactionSerializer, DepositCreditRequestSerializer
 
 
 class TransactionRepository(BaseRepository):
@@ -15,11 +15,11 @@ class TransactionRepository(BaseRepository):
         return queryset.filter(user_id=user_id).all()
 
 
-class IncreaseCreditRequestRepository(BaseRepository):
-    _model = IncreaseCreditRequest
-    _serializer = IncreaseCreditRequestSerializer
+class DepositCreditRequestRepository(BaseRepository):
+    _model = DepositCreditRequest
+    _serializer = DepositCreditRequestSerializer
 
     @classmethod
-    def get_increase_credit_requests_based_on_user_id(cls, user_id: int) -> QuerySet:
+    def get_deposit_requests_based_on_user_id(cls, user_id: int) -> QuerySet:
         queryset = cls.get_queryset()
         return queryset.filter(user_id=user_id).all()
