@@ -44,3 +44,7 @@ class User(BaseModel, AbstractBaseUser, PermissionsMixin):
     @property
     def is_seller(self):
         return self.has_role(UserRoles.SELLER)
+
+
+class PhoneNumber(BaseModel):
+    number = models.IntegerField(max_length=11)
