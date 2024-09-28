@@ -22,3 +22,9 @@ class DepositCredit(BaseModel):
     is_approved = models.BooleanField(default=False)
     approved_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='deposit_approvals')
     approved_at = models.DateTimeField(null=True, blank=True)
+
+
+class TransferCredit(BaseModel):
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    phone_number = models.ForeignKey(PhoneNumber, on_delete=models.PROTECT)
+    amount = models.PositiveBigIntegerField()
