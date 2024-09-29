@@ -96,7 +96,7 @@ class CreditTransactionTestCase(APITestCase):
             if transaction_log['transaction_type'] == TransactionType.DEPOSIT:
                 deposit_amount += transaction_log['amount']
             elif transaction_log['transaction_type'] == TransactionType.TRANSFER:
-                deposit_amount -= transaction_log['amount']
+                transfer_amount += transaction_log['amount']
         current_balance = deposit_amount - transfer_amount
         return current_balance
 
