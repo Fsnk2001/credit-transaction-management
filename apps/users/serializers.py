@@ -2,8 +2,9 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
 from ..base.serializers import BaseModelSerializer
-from ..base.serializer_fields import PasswordField
-from .models import UserRoles, User
+from ..base.validators import contains_number_validator, contains_letter_validator, contains_special_char_validator, \
+    phone_number_validator
+from .models import UserRoles, User, PhoneNumber
 
 
 class UserSerializer(BaseModelSerializer):
@@ -13,7 +14,9 @@ class UserSerializer(BaseModelSerializer):
         read_only_fields = ('is_superuser', 'is_admin', 'is_seller')
 
     username = serializers.CharField(max_length=255)
-    password = PasswordField(min_length=8, write_only=True)
+    password = serializers.CharField(min_length=8, write_only=True, validators=[
+        contains_number_validator, contains_letter_validator, contains_special_char_validator
+    ])
     confirm_password = serializers.CharField(write_only=True)
     roles = serializers.ListField(child=serializers.CharField(), write_only=True, required=False)
     is_active = serializers.BooleanField(default=True, required=False)
@@ -65,8 +68,10 @@ class UpdateUserSerializer(serializers.Serializer):
 
 
 class ResetPasswordSerializer(serializers.Serializer):
-    old_password = PasswordField()
-    password = PasswordField(min_length=8)
+    old_password = serializers.CharField()
+    password = serializers.CharField(min_length=8, write_only=True, validators=[
+        contains_number_validator, contains_letter_validator, contains_special_char_validator
+    ])
     confirm_password = serializers.CharField()
 
     def validate_old_password(self, value):
@@ -86,3 +91,16 @@ class ResetPasswordSerializer(serializers.Serializer):
 
         data.pop('confirm_password', None)
         return data
+
+
+class PhoneNumberSerializer(BaseModelSerializer):
+    class Meta:
+        model = PhoneNumber
+        fields = '__all__'
+
+    number = serializers.CharField(validators=[phone_number_validator])
+
+    def validate_number(self, number):
+        if PhoneNumber.objects.filter(number=number).exists():
+            raise serializers.ValidationError("Number already created.")
+        return number

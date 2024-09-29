@@ -4,13 +4,14 @@ from rest_framework.permissions import IsAuthenticated
 
 from ..base.views import BaseViewSet
 from ..base.responses import Response
-from ..base.permissions import IsAdminPermission
+from ..base.permissions import IsAdminPermission, IsSellerPermission, IsAdminOrSellerPermission
 from .serializers import (
     UserSerializer,
     UpdateUserSerializer,
     ResetPasswordSerializer,
+    PhoneNumberSerializer,
 )
-from .services import UserService
+from .services import UserService, PhoneNumberService
 
 
 class UserViewSet(BaseViewSet):
@@ -87,4 +88,44 @@ class UserViewSet(BaseViewSet):
             data={
                 "user": self.get_serializer(user).data
             }, message="User's password updated successfully.", meta={}
+        )
+
+
+class PhoneNumberViewSet(BaseViewSet):
+    _service = PhoneNumberService
+    serializer_class = PhoneNumberSerializer
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        self.permission_classes = [IsAdminOrSellerPermission]
+        self.check_permissions(request)
+
+        numbers = self._service.get_all()
+        return Response(
+            data={
+                "numbers": self.get_serializer(numbers, many=True).data
+            }, message="List of phone numbers.", meta={}
+        )
+
+    def retrieve(self, request, *args, **kwargs):
+        self.permission_classes = [IsAdminOrSellerPermission]
+        self.check_permissions(request)
+
+        id = kwargs.get('pk')
+        number = self._service.get_by_id(id)
+        return Response(
+            data={
+                "number": self.get_serializer(number).data
+            }, message="The phone number.", meta={}
+        )
+
+    def create(self, request, *args, **kwargs):
+        self.permission_classes = [IsAdminPermission]
+        self.check_permissions(request)
+
+        number = self._service.create(request.data)
+        return Response(
+            data={
+                "number": self.get_serializer(number).data
+            }, message="Phone number created successfully.", status=status.HTTP_201_CREATED
         )

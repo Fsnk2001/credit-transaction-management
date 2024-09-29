@@ -1,6 +1,6 @@
 from ..base.repositories import BaseRepository
-from .models import User
-from .serializers import UserSerializer
+from .models import User, PhoneNumber
+from .serializers import UserSerializer, PhoneNumberSerializer
 
 
 class UserRepository(BaseRepository):
@@ -12,3 +12,8 @@ class UserRepository(BaseRepository):
         instance.set_password(password)
         instance.save()
         return instance
+
+
+class PhoneNumberRepository(BaseRepository):
+    _model = PhoneNumber
+    _serializer = PhoneNumberSerializer
