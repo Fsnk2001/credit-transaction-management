@@ -4,7 +4,7 @@ from django.utils import timezone
 
 from ..base.repositories import BaseRepository
 from ..base.exceptions import NotFoundError, ValidationError
-from .models import Transaction, DepositCredit, TransferCredit
+from .models import Transaction, DepositCredit, TransferCredit, StatusType
 from .serializers import TransactionSerializer, DepositCreditSerializer, TransferCreditSerializer
 
 
@@ -34,24 +34,23 @@ class DepositCreditRepository(BaseRepository):
             if deposit is None:
                 raise NotFoundError()
 
-            if deposit.is_verfied:
-                raise ValidationError("You cannot update because it is already approved.")
+            if deposit.status == StatusType.DONE:
+                raise ValidationError("You cannot update because it is already done.")
 
             return cls.update(deposit, data)
 
     @classmethod
-    def approve_deposit(cls, id: int, approved_by_id: int, data: dict):
+    def approve_or_deny_deposit(cls, id: int, modified_by_id: int, data: dict):
         with transaction.atomic():
             deposit = cls._model.objects.select_for_update().filter(pk=id).first()
             if deposit is None:
                 raise NotFoundError()
 
-            if deposit.is_approved:
-                raise ValidationError("This deposit has already been approved.")
+            if deposit.status == StatusType.DONE:
+                raise ValidationError("This deposit has already been modified.")
 
             data.update({
-                'approved_by': approved_by_id,
-                'approved_at': timezone.now()
+                'modified_by': modified_by_id,
             })
             return cls.update(deposit, data)
 
