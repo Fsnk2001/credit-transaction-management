@@ -16,15 +16,23 @@ class Transaction(BaseModel):
     balance_after_transaction = models.PositiveBigIntegerField()
 
 
+class StatusType(models.TextChoices):
+    PENDING = 'pending', 'Pending'
+    DONE = 'done', 'Done'
+    FAILED = 'failed', 'Failed'
+
+
 class DepositCredit(BaseModel):
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     amount = models.PositiveBigIntegerField()
     is_approved = models.BooleanField(default=False)
-    approved_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='deposit_approvals')
+    approved_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='deposit_approvals', null=True)
     approved_at = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=StatusType.choices, default=StatusType.PENDING)
 
 
 class TransferCredit(BaseModel):
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     phone_number = models.ForeignKey(PhoneNumber, on_delete=models.PROTECT)
     amount = models.PositiveBigIntegerField()
+    status = models.CharField(max_length=20, choices=StatusType.choices, default=StatusType.PENDING)
