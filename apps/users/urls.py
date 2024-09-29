@@ -7,7 +7,7 @@ from .views import UserViewSet
 router = DefaultRouter()
 router.register(r'', UserViewSet, basename='users')
 urlpatterns = [
-    path('login', TokenObtainPairView.as_view(), name='login'),
-    path('refresh', TokenRefreshView.as_view(), name='refresh'),
+    path('login/', TokenObtainPairView.as_view(), name='login'),
+    path('refresh/', TokenRefreshView.as_view(), name='refresh'),
     path('', include(router.urls)),
 ]
