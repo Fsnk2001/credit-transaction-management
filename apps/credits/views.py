@@ -10,8 +10,10 @@ from .serializers import (
     DepositCreditSerializer,
     CreateOrUpdateDepositCreditSerializer,
     ApproveDepositCreditSerializer,
+    TransferCreditSerializer,
+    CreateTransferCreditSerializer,
 )
-from .services import TransactionService, DepositCreditService
+from .services import TransactionService, DepositCreditService, TransferCreditService
 
 
 class TransactionViewSet(BaseViewSet):
@@ -53,7 +55,7 @@ class TransactionViewSet(BaseViewSet):
         )
 
 
-class DepositCreditRequestViewSet(BaseViewSet):
+class DepositCreditViewSet(BaseViewSet):
     _service = DepositCreditService
     serializer_class = DepositCreditSerializer
     permission_classes = [IsAuthenticated]
@@ -62,10 +64,10 @@ class DepositCreditRequestViewSet(BaseViewSet):
         self.permission_classes = [IsAdminPermission]
         self.check_permissions(request)
 
-        data = self._service.get_all()
+        deposits = self._service.get_all()
         return Response(
             data={
-                "deposits": self.get_serializer(data, many=True).data
+                "deposits": self.get_serializer(deposits, many=True).data
             }, message="List of deposits.", meta={}
         )
 
@@ -75,10 +77,10 @@ class DepositCreditRequestViewSet(BaseViewSet):
         self.check_permissions(request)
 
         user_id = request.user.id
-        data = self._service.get_my_deposits(user_id)
+        deposits = self._service.get_my_deposits(user_id)
         return Response(
             data={
-                "deposits": self.get_serializer(data).data
+                "deposits": self.get_serializer(deposits, many=True).data
             }, message="Your deposits.", meta={}
         )
 
@@ -87,10 +89,10 @@ class DepositCreditRequestViewSet(BaseViewSet):
         self.check_permissions(request)
 
         id = kwargs.get('pk')
-        data = self._service.get_by_id(id)
+        deposit = self._service.get_by_id(id)
         return Response(
             data={
-                "deposit": self.get_serializer(data).data
+                "deposit": self.get_serializer(deposit).data
             }, message="The deposit.", meta={}
         )
 
@@ -98,7 +100,7 @@ class DepositCreditRequestViewSet(BaseViewSet):
         user_id = request.user.id
         serializer = CreateOrUpdateDepositCreditSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        deposit = self._service.create_deposit(user_id, serializer.validated_data)
+        deposit = self._service.create_deposit(user_id, request.data)
         return Response(
             data={
                 "deposit": self.get_serializer(deposit).data
@@ -108,7 +110,7 @@ class DepositCreditRequestViewSet(BaseViewSet):
     def update(self, request, *args, **kwargs):
         id = kwargs.get('pk')
         user_id = request.user.id
-        self._service.is_deposit_yours(id, user_id)
+        self._service.check_related_user_id(id, user_id)
 
         serializer = CreateOrUpdateDepositCreditSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -133,4 +135,57 @@ class DepositCreditRequestViewSet(BaseViewSet):
             data={
                 "deposit": self.get_serializer(updated_deposit).data
             }, message="Deposit approved successfully.", status=status.HTTP_200_OK
+        )
+
+
+class TransferCreditViewSet(BaseViewSet):
+    _service = TransferCreditService
+    serializer_class = TransferCreditSerializer
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        self.permission_classes = [IsAdminPermission]
+        self.check_permissions(request)
+
+        transfers = self._service.get_all()
+        return Response(
+            data={
+                "transfers": self.get_serializer(transfers, many=True).data
+            }, message="List of transfers.", meta={}
+        )
+
+    @action(detail=False, methods=['get'], url_path='me')
+    def get_me(self, request, *args, **kwargs):
+        self.permission_classes = [IsSellerPermission]
+        self.check_permissions(request)
+
+        user_id = request.user.id
+        transfers = self._service.get_my_transfers(user_id)
+        return Response(
+            data={
+                "transfers": self.get_serializer(transfers, many=True).data
+            }, message="Your transfers.", meta={}
+        )
+
+    def retrieve(self, request, *args, **kwargs):
+        self.permission_classes = [IsAdminPermission]
+        self.check_permissions(request)
+
+        id = kwargs.get('pk')
+        transfer = self._service.get_by_id(id)
+        return Response(
+            data={
+                "transfer": self.get_serializer(transfer).data
+            }, message="The transfer.", meta={}
+        )
+
+    def create(self, request, *args, **kwargs):
+        user_id = request.user.id
+        serializer = CreateTransferCreditSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        transfer = self._service.create_transfer(user_id, request.data)
+        return Response(
+            data={
+                "transfer": self.get_serializer(transfer).data
+            }, message="Transfer created successfully.", status=status.HTTP_201_CREATED
         )
