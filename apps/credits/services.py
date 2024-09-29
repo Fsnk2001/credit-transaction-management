@@ -1,8 +1,8 @@
 from django.utils import timezone
 
-from ..base.services import BaseService
+from .repositories import TransactionRepository, DepositCreditRepository, TransferCreditRepository
 from ..base.exceptions import ValidationError, PermissionDeniedError
-from .repositories import TransactionRepository, DepositCreditRequestRepository
+from ..base.services import BaseService
 
 
 class TransactionService(BaseService):
@@ -13,42 +13,41 @@ class TransactionService(BaseService):
         return list(cls._repository.get_transactions_based_on_user_id(user_id))
 
 
-class DepositCreditRequestService(BaseService):
-    _repository = DepositCreditRequestRepository
+class DepositCreditService(BaseService):
+    _repository = DepositCreditRepository
     transaction_service = TransactionService
 
     @classmethod
-    def create_request(cls, user_id: id, data: dict):
+    def create_deposit(cls, user_id: id, data: dict):
         data.update({
             "user": user_id}
         )
         return cls.create(data)
 
     @classmethod
-    def is_request_yours(cls, id: int, user_id: int):
-        deposit_request = cls.get_by_id(id)
-        if deposit_request.user_id != user_id:
-            raise PermissionDeniedError()
+    def get_my_deposits(cls, user_id: int):
+        return cls._repository.get_deposits_based_on_user_id(user_id)
 
     @classmethod
-    def get_my_deposit_requests(cls, user_id: int):
-        return list(cls._repository.get_deposit_requests_based_on_user_id(user_id))
+    def update_deposit_if_not_approved(cls, id: int, data: dict):
+        return cls._repository.update_deposit_if_not_approved(id, data)
 
     @classmethod
-    def update_request_if_not_approved(cls, id: int, data: dict):
-        deposit_request = cls.select_for_update_by_id(id)
-        if deposit_request.is_verfied:
-            raise ValidationError("You cannot update because it is already approved.")
-        return cls.update(id, data)
+    def approve_deposit(cls, id: int, approved_by_id: int, data: dict):
+        return cls._repository.approve_deposit(id, approved_by_id, data)
+
+
+class TransferCreditService(BaseService):
+    _repository = TransferCreditRepository
+    transaction_service = TransactionService
 
     @classmethod
-    def approve(cls, id: int, approved_by_id: int, data: dict):
-        deposit_request = cls.select_for_update_by_id(id)
-        if deposit_request.is_verfied:
-            raise ValidationError("This request has already been approved.")
-
+    def create_transfer(cls, user_id: id, data: dict):
         data.update({
-            'approved_by': approved_by_id,
-            'approved_at': timezone.now()
-        })
-        return cls.update(id, data)
+            "user": user_id}
+        )
+        return cls.create(data)
+
+    @classmethod
+    def get_my_transfers(cls, user_id: int):
+        return cls._repository.get_transfers_based_on_user_id(user_id)
