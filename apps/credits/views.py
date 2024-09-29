@@ -38,7 +38,7 @@ class TransactionViewSet(BaseViewSet):
         data = self._service.get_my_transactions(user_id)
         return Response(
             data={
-                "transaction": self.get_serializer(data).data
+                "transaction": self.get_serializer(data, many=True).data
             }, message="The transaction.", meta={}
         )
 

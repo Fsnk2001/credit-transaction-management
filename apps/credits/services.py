@@ -10,7 +10,7 @@ class TransactionService(BaseService):
 
     @classmethod
     def get_my_transactions(cls, user_id: int):
-        return list(cls._repository.get_transactions_based_on_user_id(user_id))
+        return cls._repository.get_transactions_based_on_user_id(user_id)
 
 
 class DepositCreditService(BaseService):
