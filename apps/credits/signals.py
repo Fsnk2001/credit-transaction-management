@@ -15,10 +15,12 @@ def update_user_balance_after_deposit_request(sender, instance, created, **kwarg
     if getattr(_signal_processing, 'in_signal', False):
         return
 
-    if instance.is_approved:
-        with transaction.atomic():
-            _signal_processing.in_signal = True
+    with transaction.atomic():
+        _signal_processing.in_signal = True
 
+        if not instance.is_approved and instance.modified_by:
+            instance.status = StatusType.FAILED
+        elif instance.is_approved:
             instance.status = StatusType.DONE
 
             user = User.objects.get(pk=instance.user.id)
@@ -32,9 +34,9 @@ def update_user_balance_after_deposit_request(sender, instance, created, **kwarg
                 balance_after_transaction=user.balance,
             )
 
-            instance.save(update_fields=['status'])
+        instance.save(update_fields=['status'])
 
-            _signal_processing.in_signal = False
+        _signal_processing.in_signal = False
 
 
 @receiver(post_save, sender=TransferCredit)

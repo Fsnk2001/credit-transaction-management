@@ -9,7 +9,6 @@ from .serializers import (
     TransactionSerializer,
     DepositCreditSerializer,
     CreateOrUpdateDepositCreditSerializer,
-    ApproveDepositCreditSerializer,
     TransferCreditSerializer,
     CreateTransferCreditSerializer,
 )
@@ -97,6 +96,9 @@ class DepositCreditViewSet(BaseViewSet):
         )
 
     def create(self, request, *args, **kwargs):
+        self.permission_classes = [IsSellerPermission]
+        self.check_permissions(request)
+
         user_id = request.user.id
         serializer = CreateOrUpdateDepositCreditSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -121,20 +123,38 @@ class DepositCreditViewSet(BaseViewSet):
             }, message="Deposit updated successfully.", status=status.HTTP_200_OK
         )
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['get'])
     def approve(self, request, *args, **kwargs):
         self.permission_classes = [IsAdminPermission]
         self.check_permissions(request)
 
         id = kwargs.get('pk')
         user_id = request.user.id
-        serializer = ApproveDepositCreditSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        updated_deposit = self._service.approve_deposit(id, user_id, serializer.validated_data)
+        data = {
+            'is_approved': True
+        }
+        updated_deposit = self._service.approve_or_deny_deposit(id, user_id, data)
         return Response(
             data={
                 "deposit": self.get_serializer(updated_deposit).data
             }, message="Deposit approved successfully.", status=status.HTTP_200_OK
+        )
+
+    @action(detail=True, methods=['get'])
+    def deny(self, request, *args, **kwargs):
+        self.permission_classes = [IsAdminPermission]
+        self.check_permissions(request)
+
+        id = kwargs.get('pk')
+        user_id = request.user.id
+        data = {
+            'is_approved': False
+        }
+        updated_deposit = self._service.approve_or_deny_deposit(id, user_id, data)
+        return Response(
+            data={
+                "deposit": self.get_serializer(updated_deposit).data
+            }, message="Deposit denied successfully.", status=status.HTTP_200_OK
         )
 
 

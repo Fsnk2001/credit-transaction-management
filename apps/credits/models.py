@@ -26,8 +26,7 @@ class DepositCredit(BaseModel):
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     amount = models.PositiveBigIntegerField()
     is_approved = models.BooleanField(default=False)
-    approved_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='deposit_approvals', null=True)
-    approved_at = models.DateTimeField(null=True, blank=True)
+    modified_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='deposit_modifications', null=True)
     status = models.CharField(max_length=20, choices=StatusType.choices, default=StatusType.PENDING)
 
 
