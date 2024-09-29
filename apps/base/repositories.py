@@ -5,7 +5,7 @@ from django.db.models import QuerySet
 
 from .models import BaseModel
 from .serializers import BaseModelSerializer
-from .exceptions import NotFoundError
+from .exceptions import NotFoundError, PermissionDeniedError
 
 
 class BaseRepository(ABC):
@@ -40,13 +40,6 @@ class BaseRepository(ABC):
         return instance
 
     @classmethod
-    def select_for_update_by_id(cls, id: int | str):
-        instance = cls._model.objects.select_for_update().get(pk=id)
-        if instance is None:
-            raise NotFoundError()
-        return instance
-
-    @classmethod
     def create(cls, data: dict):
         serializer = cls._serializer(data=data)
         serializer.is_valid(raise_exception=True)
@@ -61,3 +54,9 @@ class BaseRepository(ABC):
     @classmethod
     def delete(cls, instance: BaseModel):
         instance.delete()
+
+    @classmethod
+    def check_related_user_id(cls, id: int, user_id: int):
+        instance = cls.get_by_id(id)
+        if instance.user_id != user_id:
+            raise PermissionDeniedError()

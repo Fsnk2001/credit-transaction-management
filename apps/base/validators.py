@@ -22,6 +22,6 @@ def contains_special_char_validator(data: str):
 
 
 def phone_number_validator(data: str):
-    regex = re.compile('[^09\d{9}$]')
-    if regex.search(data) == None:
+    regex = re.compile(r'^09\d{9}$')
+    if not regex.match(data):
         raise ValidationError("Invalid phone number.")
