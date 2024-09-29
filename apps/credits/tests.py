@@ -71,9 +71,7 @@ class CreditTransactionTestCase(APITestCase):
     def approve_deposit(self, deposit: dict):
         url = f"{self.DEPOSIT_URL}{deposit['id']}/approve/"
         self.client.force_authenticate(user=self.admin)
-        response = self.client.post(url, {
-            'is_approved': True
-        }, format='json')
+        response = self.client.get(url)
         return response
 
     def transfer_credits(self, user):
