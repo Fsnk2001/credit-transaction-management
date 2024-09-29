@@ -10,7 +10,7 @@ class TransactionService(BaseService):
 
     @classmethod
     def get_my_transactions(cls, user_id: int):
-        return list(cls._repository.get_transactions_based_on_user_id(user_id))
+        return cls._repository.get_transactions_based_on_user_id(user_id)
 
 
 class DepositCreditService(BaseService):
@@ -33,8 +33,8 @@ class DepositCreditService(BaseService):
         return cls._repository.update_deposit_if_not_approved(id, data)
 
     @classmethod
-    def approve_deposit(cls, id: int, approved_by_id: int, data: dict):
-        return cls._repository.approve_deposit(id, approved_by_id, data)
+    def approve_or_deny_deposit(cls, id: int, modified_by_id: int, data: dict):
+        return cls._repository.approve_or_deny_deposit(id, modified_by_id, data)
 
 
 class TransferCreditService(BaseService):
