@@ -3,11 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, Group
 
 from ..base.models import BaseModel
 from .managers import UserManager
-
-
-class UserRoles(models.TextChoices):
-    ADMIN = 'admin', 'Admin'
-    SELLER = 'seller', 'Seller'
+from .roles import UserRoles
 
 
 class User(BaseModel, AbstractBaseUser, PermissionsMixin):
@@ -47,4 +43,4 @@ class User(BaseModel, AbstractBaseUser, PermissionsMixin):
 
 
 class PhoneNumber(BaseModel):
-    number = models.IntegerField(max_length=11)
+    number = models.CharField(max_length=11, unique=True)
