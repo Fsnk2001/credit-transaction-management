@@ -1,5 +1,7 @@
 from django.contrib.auth.models import BaseUserManager
 
+from .roles import UserRoles
+
 
 class UserManager(BaseUserManager):
     def create_user(self, username, password=None, **extra_fields):
@@ -24,5 +26,7 @@ class UserManager(BaseUserManager):
         user.is_superuser = True
         user.full_clean()
         user.save(using=self._db)
+
+        user.add_role(UserRoles.ADMIN)
 
         return user

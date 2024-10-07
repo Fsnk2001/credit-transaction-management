@@ -74,7 +74,7 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     'apps.users',
-    'apps.wallets',
+    'apps.credits',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -188,7 +188,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
-    'EXCEPTION_HANDLER': 'base.exception_handler.custom_exception_handler',
+    'EXCEPTION_HANDLER': 'apps.base.exception_handler.custom_exception_handler',
 }
 
 # Swagger

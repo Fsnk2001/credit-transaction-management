@@ -26,10 +26,6 @@ class BaseService(ABC):
         return cls._repository.get_by_id(id)
 
     @classmethod
-    def select_for_update_by_id(cls, id: int | str):
-        return cls._repository.select_for_update_by_id(id)
-
-    @classmethod
     def create(cls, data: dict):
         return cls._repository.create(data)
 
@@ -42,3 +38,7 @@ class BaseService(ABC):
     def delete(cls, id: int | str):
         instance = cls.get_by_id(id)
         cls._repository.delete(instance)
+
+    @classmethod
+    def check_related_user_id(cls, id: int, user_id: int):
+        cls._repository.check_related_user_id(id, user_id)
