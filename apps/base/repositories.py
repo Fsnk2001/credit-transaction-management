@@ -17,12 +17,12 @@ class BaseRepository(ABC):
         return cls._model
 
     @classmethod
-    def _get_serializer(cls) -> Type[BaseModelSerializer]:
-        return cls._serializer
+    def get_serializer(cls, *args, **kwargs) -> BaseModelSerializer:
+        return cls._serializer(*args, **kwargs)
 
     @classmethod
     def get_queryset(cls) -> QuerySet:
-        return cls._model.objects.get_queryset()
+        return cls._get_model().objects.get_queryset()
 
     @classmethod
     def set_filters(cls, filters):
@@ -30,24 +30,24 @@ class BaseRepository(ABC):
 
     @classmethod
     def get_all(cls):
-        return cls._model.objects.get_queryset().all()
+        return cls._get_model().objects.get_queryset().all()
 
     @classmethod
     def get_by_id(cls, id: int | str):
-        instance = cls._model.objects.filter(pk=id).first()
+        instance = cls._get_model().objects.filter(pk=id).first()
         if instance is None:
             raise NotFoundError()
         return instance
 
     @classmethod
     def create(cls, data: dict):
-        serializer = cls._serializer(data=data)
+        serializer = cls.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         return serializer.save()
 
     @classmethod
     def update(cls, instance: BaseModel, data: dict):
-        serializer = cls._serializer(instance=instance, data=data, partial=True)
+        serializer = cls.get_serializer(instance=instance, data=data, partial=True)
         serializer.is_valid(raise_exception=True)
         return serializer.save()
 
